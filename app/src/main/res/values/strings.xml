@@ -3,4 +3,9 @@
     <string name="hint_enter_reminder">Enter reminder here</string>
     <string name="button_title_add">ADD</string>
     <string name="button_title_clear">CLEAR</string>
+    <string name="button_title_delete">DELETE</string>
+    <string-array name="spinner_values">
+        <item>Add a new task</item>
+        <item>Remove a task</item>
+    </string-array>
 </resources>
