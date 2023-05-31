@@ -2,14 +2,17 @@ package sg.edu.rp.c346.id22000000.c346p07;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -23,6 +26,14 @@ public class MainActivity extends AppCompatActivity {
     Spinner spinner;
 
     ArrayList<String> items;
+
+    void hideKeyboard() {
+        View tempView = getCurrentFocus();
+        if (tempView != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(tempView.getWindowToken(), 0);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideKeyboard();
                 String text = editText.getText().toString();
                 editText.setText("");
                 items.add(text);
@@ -65,10 +77,34 @@ public class MainActivity extends AppCompatActivity {
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int index = Integer.parseInt(editText.getText().toString());
-                editText.setText("");
-                items.remove(index);
-                adapter.notifyDataSetChanged();
+                hideKeyboard();
+//                View tempView = getCurrentFocus();
+//                if (tempView != null) {
+//                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+//                }
+
+                int index = 0;
+                try {
+                    index = Integer.parseInt(editText.getText().toString());
+                    editText.setText("");
+                } catch (NumberFormatException nfe) {
+                    editText.setText("");
+                    CharSequence text = "Index needs to be a number";
+                    Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (index < 0 || index > (items.size() - 1)) {
+                    CharSequence text = "Invalid index";
+                    Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
+                } else {
+                    items.remove(index);
+                    adapter.notifyDataSetChanged();
+                    if (items.size() == 0) {
+                        btnDelete.setEnabled(false);
+                    }
+                }
             }
         });
 
@@ -85,6 +121,11 @@ public class MainActivity extends AppCompatActivity {
                         editText.setHint("Type in the index of the task to be removed");
                         btnDelete.setEnabled(true);
                         btnAdd.setEnabled(false);
+                        if (items.size() == 0) {
+                            btnDelete.setEnabled(false);
+                            CharSequence text = "You don't have any task to remove";
+                            Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
+                        }
                         break;
                 }
             }
