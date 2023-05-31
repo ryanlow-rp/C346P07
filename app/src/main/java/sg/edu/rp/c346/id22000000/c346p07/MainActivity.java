@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -26,12 +29,21 @@ public class MainActivity extends AppCompatActivity {
     Spinner spinner;
 
     ArrayList<String> items;
+    ArrayAdapter adapter;
 
     void hideKeyboard() {
         View tempView = getCurrentFocus();
         if (tempView != null) {
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(tempView.getWindowToken(), 0);
+        }
+    }
+
+    void deleteItem(int index) {
+        items.remove(index);
+        adapter.notifyDataSetChanged();
+        if (items.size() == 0) {
+            btnDelete.setEnabled(false);
         }
     }
 
@@ -49,10 +61,12 @@ public class MainActivity extends AppCompatActivity {
 
         items = new ArrayList<String>();
 
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, items);
+        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, items);
         listView.setAdapter(adapter);
 
         btnDelete.setEnabled(false);
+
+        registerForContextMenu(listView);
 
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,12 +92,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 hideKeyboard();
-//                View tempView = getCurrentFocus();
-//                if (tempView != null) {
-//                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-//                }
-
                 int index = 0;
                 try {
                     index = Integer.parseInt(editText.getText().toString());
@@ -99,11 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     CharSequence text = "Invalid index";
                     Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
                 } else {
-                    items.remove(index);
-                    adapter.notifyDataSetChanged();
-                    if (items.size() == 0) {
-                        btnDelete.setEnabled(false);
-                    }
+                    deleteItem(index);
                 }
             }
         });
@@ -136,5 +140,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(0,0,0,"Delete");
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case 0:
+                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                deleteItem(info.position);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 }
