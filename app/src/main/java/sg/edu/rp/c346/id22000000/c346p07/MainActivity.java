@@ -32,20 +32,23 @@ public class MainActivity extends AppCompatActivity {
 
         items = new ArrayList<String>();
 
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, items);
+        listView.setAdapter(adapter);
+
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                editText.setText("");
+                items.clear();
+                adapter.notifyDataSetChanged();
             }
         });
 
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, items);
-        listView.setAdapter(adapter);
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String text = editText.getText().toString();
+                editText.setText("");
                 items.add(text);
                 adapter.notifyDataSetChanged();
             }
